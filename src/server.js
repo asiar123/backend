@@ -19,8 +19,6 @@ const io = require('socket.io')(httpsServer, {
   cors: {
     origin: "https://frontened-s7n0.onrender.com", // Cambia aquí el origen
     methods: ["GET", "POST"],
-    allowedHeaders: ["my-custom-header"],
-    credentials: true
   }
 });
 
