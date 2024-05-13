@@ -17,7 +17,7 @@ const httpsServer = https.createServer(credentials, app);
 // Configuración de Socket.io
 const io = require('socket.io')(httpsServer, {
   cors: {
-    origin: "https://192.168.1.7:3000",
+    origin: "https://backend-8jcr.onrender.com", // Cambia aquí el origen
     methods: ["GET", "POST"],
     allowedHeaders: ["my-custom-header"],
     credentials: true
@@ -26,8 +26,6 @@ const io = require('socket.io')(httpsServer, {
 
 io.on('connection', (socket) => {
   console.log(`Usuario conectado: ${socket.id}`);
-
-  // Evento personalizado que el cliente debería emitir después de iniciar sesión
   socket.on('registerUser', async (id_usuario) => {
     try {
       await pool.query(
@@ -62,7 +60,6 @@ const authRoutes = require('./routes/authRoutes');
 app.use('/api/auth', authRoutes);
 app.use('/api/geolocation', geolocationRoutes);
 
-// Servir archivos estáticos desde la carpeta 'uploads'
 app.use('/uploads', express.static('uploads'));
 
 app.get('/', (req, res) => {
@@ -77,6 +74,12 @@ app.get('/db', async (req, res) => {
     console.error(err);
     res.status(500).send('Error al conectar con la base de datos');
   }
+});
+
+// Asegúrate de escuchar en el puerto que Render asigna a tu aplicación
+const PORT = process.env.PORT || 3000;
+httpsServer.listen(PORT, () => {
+  console.log(`Servidor corriendo en el puerto ${PORT}`);
 });
 
 module.exports = { app, httpsServer, io };
