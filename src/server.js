@@ -17,8 +17,10 @@ const httpsServer = https.createServer(credentials, app);
 // Configuración de Socket.io
 const io = require('socket.io')(httpsServer, {
   cors: {
-    origin: 'https://frontened-s7n0.onrender.com', // Cambia aquí el origen
+    origin: "https://backend-8jcr.onrender.com", // Cambia aquí el origen
     methods: ["GET", "POST"],
+    allowedHeaders: ["my-custom-header"],
+    credentials: true
   }
 });
 
