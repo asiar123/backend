@@ -2,24 +2,17 @@ require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const pool = require('./config/dbConfig');
-const https = require('https');
-const fs = require('fs');
+const http = require('http');  // Uso de HTTP en lugar de HTTPS
 const socketIo = require('socket.io');
 
 const app = express();
 
-// Configuración de HTTPS
-const privateKey = fs.readFileSync('localhost.key', 'utf8');
-const certificate = fs.readFileSync('localhost.crt', 'utf8');
-const credentials = { key: privateKey, cert: certificate };
-const httpsServer = https.createServer(credentials, app);
-
-// Configuración de Socket.io
-const io = require('socket.io')(httpsServer, {
+// Configuración de Socket.io utilizando HTTP
+const httpServer = http.createServer(app);  // Asegúrate de que esta línea esté correctamente definida antes de usar httpServer
+const io = require('socket.io')(httpServer, {
   cors: {
     origin: "https://frontened-s7n0.onrender.com",
     methods: ["GET", "POST"],
-    allowedHeaders: ["my-custom-header"],
     credentials: true
   }
 });
@@ -27,13 +20,9 @@ const io = require('socket.io')(httpsServer, {
 io.on('connection', (socket) => {
   console.log(`Usuario conectado: ${socket.id}`);
 
-  // Evento personalizado que el cliente debería emitir después de iniciar sesión
   socket.on('registerUser', async (id_usuario) => {
     try {
-      await pool.query(
-        'UPDATE usuarios SET socket_id = $1 WHERE id_usuario = $2',
-        [socket.id, id_usuario]
-      );
+      await pool.query('UPDATE usuarios SET socket_id = $1 WHERE id_usuario = $2', [socket.id, id_usuario]);
       console.log(`Usuario ${id_usuario} registrado con socket ID ${socket.id}`);
     } catch (err) {
       console.error('Error al registrar socket ID:', err);
@@ -42,10 +31,7 @@ io.on('connection', (socket) => {
 
   socket.on('disconnect', async () => {
     try {
-      await pool.query(
-        'UPDATE usuarios SET socket_id = NULL WHERE socket_id = $1',
-        [socket.id]
-      );
+      await pool.query('UPDATE usuarios SET socket_id = NULL WHERE socket_id = $1', [socket.id]);
       console.log(`Socket ID ${socket.id} ha sido removido`);
     } catch (err) {
       console.error('Error al remover socket ID:', err);
@@ -79,7 +65,7 @@ app.get('/db', async (req, res) => {
 // Escucha en el puerto asignado por Render o en un puerto predeterminado para desarrollo local
 const PORT = process.env.PORT || 3000;
 httpServer.listen(PORT, () => {
-  console.log(`Servidor cooooooorriendo en el puerto ${PORT}`);
+  console.log(`Servidor corriendo en el puerto ${PORT}`);
 });
 
-module.exports = { app, httpsServer, io };
+module.exports = { app, httpServer, io };
