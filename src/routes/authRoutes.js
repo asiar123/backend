@@ -52,7 +52,7 @@ router.get('/user/:id', async (req, res) => {
       if (result.rows.length > 0) {
           const user = result.rows[0];
           // Construir la ruta completa de la imagen
-          user.foto = user.foto ? `https://backend-ocba.onrender.com/uploads/${user.foto}` : null;
+          user.foto = user.foto ? `https://backend-ocba.onrender.com/${user.foto}` : null;
           res.json(user);
       } else {
           res.status(404).send('Usuario no encontrado');
