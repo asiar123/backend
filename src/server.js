@@ -76,4 +76,10 @@ app.get('/db', async (req, res) => {
   }
 });
 
+// Escucha en el puerto asignado por Render o en un puerto predeterminado para desarrollo local
+const PORT = process.env.PORT || 3000;
+httpServer.listen(PORT, () => {
+  console.log(`Servidor cooooooorriendo en el puerto ${PORT}`);
+});
+
 module.exports = { app, httpsServer, io };
